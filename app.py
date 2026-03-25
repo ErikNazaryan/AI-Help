@@ -1,6 +1,10 @@
 from flask import Flask, jsonify
 import os
 import requests
+
+# TODO: Initialize SQLite database for storing user chat history
+# This will be implemented in the next phase of the roadmap.
+
 from dotenv import load_dotenv
 
 # 1. Load environment variables from .env
