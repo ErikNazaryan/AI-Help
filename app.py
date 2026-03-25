@@ -37,7 +37,7 @@ with app.app_context():
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
-        "status": "healthy",
+        "status": "healthy։",
         "environment": os.getenv("APP_ENV", "development")
     })
 
