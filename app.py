@@ -34,6 +34,10 @@ with app.app_context():
 # --- ROUTES ---
 
 # HW6 Requirement: Health Check
+@app.route('/')
+def hello():
+    return "Hello"
+
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
@@ -109,5 +113,13 @@ def get_history():
     })
 
 # 5. Run the app
+# Change this:
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
+# To THIS:
+if __name__ == '__main__':
+    # Setting host to 0.0.0.0 allows Docker to map the port correctly
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
+    
