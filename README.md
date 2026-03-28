@@ -35,3 +35,6 @@ This project is containerized using Docker. You can pull the image from Docker H
 ### Pull the Image
 ```bash
 docker pull eriknazaryan/project-genesis:v1
+
+http://localhost:8080/health
+docker run -p 8080:5000 eriknazaryan/project-genesis:v1
