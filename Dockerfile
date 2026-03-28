@@ -1,17 +1,20 @@
-FROM python:3.9-slim
-
+# Stage 1: Build stage
+FROM python:3.9-slim AS builder
 WORKDIR /app
-
-# Copy only requirements first to leverage Docker cache
 COPY requirements.txt .
+# Install build dependencies to a temporary location
+RUN pip install --user --no-cache-dir -r requirements.txt
 
-# Install dependencies - this layer will be cached unless requirements.txt changes
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the rest of the application code
+# Stage 2: Runtime stage
+FROM python:3.9-slim
+WORKDIR /app
+# Copy only the necessary dependencies from the builder stage
+COPY --from=builder /root/.local /root/.local
 COPY . .
 
-# Set the environment variable for Flask
+# Ensure the installed binaries are in the PATH
+ENV PATH=/root/.local/bin:$PATH
 ENV FLASK_APP=app.py
 
+# Run the Flask application
 CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]

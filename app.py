@@ -1,18 +1,20 @@
 import os
+import time
 import requests
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from dotenv import load_dotenv
+from sqlalchemy.exc import OperationalError
 
 # 1. Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 
-# 2. Database Configuration
-# This creates a 'database.db' file in your project folder
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL", "sqlite:///database.db")
+# 2. Database Configuration for PostgreSQL
+# Ensure these credentials match your docker-compose.yml
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://user:pass@db:5432/genesis_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize SQLAlchemy
@@ -27,25 +29,39 @@ class AdviceLog(db.Model):
     def __repr__(self):
         return f'<Advice {self.id}>'
 
-# 4. Create Database Tables (Runs at startup)
-with app.app_context():
-    db.create_all()
+# 4. Database Connection Helper with Retries
+def connect_db():
+    """ Handles connection retries to ensure PostgreSQL is ready before starting the app """
+    retries = 10
+    while retries > 0:
+        try:
+            with app.app_context():
+                # Test connection and create tables
+                db.session.execute('SELECT 1')
+                db.create_all()
+            print("Successfully connected to PostgreSQL!")
+            return
+        except Exception as e:
+            retries -= 1
+            print(f"Database not ready yet... {retries} retries left. Error: {e}")
+            time.sleep(5)  # Wait 5 seconds for PostgreSQL to boot up
+    print("Could not connect to database. Exiting.")
+    exit(1)
 
 # --- ROUTES ---
 
-# HW6 Requirement: Health Check
 @app.route('/')
 def hello():
-    return "Hello"
+    return "Welcome to Project Genesis API"
 
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
-        "status": "healthy։",
-        "environment": os.getenv("APP_ENV", "development")
+        "status": "healthy",
+        "environment": os.getenv("APP_ENV", "production")
     })
 
-# Step 4: GET Endpoint - Fetch advice from external API and save it
+# GET Endpoint - Fetch advice from external API and save it
 @app.route('/api/v1/bot/think', methods=['GET'])
 def ai_think():
     api_url = "https://api.adviceslip.com/advice"
@@ -70,17 +86,14 @@ def ai_think():
                     "db_entry_id": new_log.id
                 }
             })
-        
         return jsonify({"error": "External API error"}), response.status_code
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Step 4: POST Endpoint - Manual entry from user
+# POST Endpoint - Manual entry from user
 @app.route('/api/v1/notes', methods=['POST'])
 def create_note():
     data = request.get_json()
-
     if not data or 'content' not in data:
         return jsonify({"error": "Missing 'content' field in JSON"}), 400
 
@@ -96,7 +109,7 @@ def create_note():
         "entry_id": new_note.id
     }), 201
 
-# Step 4: GET Endpoint - View all saved history
+# GET Endpoint - View all saved history
 @app.route('/api/v1/history', methods=['GET'])
 def get_history():
     logs = AdviceLog.query.all()
@@ -112,14 +125,9 @@ def get_history():
         "history": output
     })
 
-# 5. Run the app
-# Change this:
+# 5. Startup Execution
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-
-# To THIS:
-if __name__ == '__main__':
-    # Setting host to 0.0.0.0 allows Docker to map the port correctly
-    app.run(host='0.0.0.0', port=5000, debug=True)
-
-    
+    # First, ensure database is connected
+    connect_db()
+    # Then, run the server
+    app.run(host='0.0.0.0', port=5000)
