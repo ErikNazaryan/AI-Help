@@ -44,3 +44,28 @@ IMAGE          CREATED          CREATED BY                                      
 <missing>      27 minutes ago   RUN /bin/sh -c pip install --no-cache-dir -r…   44.2MB    buildkit.dockerfile.v0
 <missing>      27 minutes ago   COPY requirements.txt . # buildkit              12.3kB    buildkit.dockerfile.v0
 <missing>      24 hours ago     WORKDIR /app                                    8.19kB    buildkit.dockerfile.v0
+
+
+
+
+## 🏗 Production Architecture Summary
+
+This project has been migrated to a professional client-server architecture using Docker Compose. The stack consists of three orchestrated containers:
+
+1.  **Nginx (Reverse Proxy):** Acts as the entry point, listening on port `80` and forwarding traffic to the API.
+2.  **Flask API (App):** The core logic of Project Genesis, now optimized using a multi-stage Docker build to reduce image size.
+3.  **PostgreSQL (Database):** A persistent relational database engine that replaces the local SQLite file for production-grade data management.
+
+**Traffic Flow:**
+`User Request (Port 80)` ➔ `Nginx Proxy` ➔ `Flask Application (Port 5000)` ➔ `PostgreSQL Database (Port 5432)`
+
+---
+
+## 🚀 Run Instructions
+
+To get the entire production stack up and running locally, follow these steps:
+
+### 1. Clone the Repository
+```bash
+git clone [https://github.com/ErikNazaryan/AI-Help.git](https://github.com/ErikNazaryan/AI-Help.git)
+cd AI-Help
