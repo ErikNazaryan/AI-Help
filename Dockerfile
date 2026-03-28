@@ -1,18 +1,17 @@
-
 FROM python:3.9-slim
 
-#Creating a working folder inside a container
 WORKDIR /app
 
-# Copying requirements.txt and installing the libraries
+# Copy only requirements first to leverage Docker cache
 COPY requirements.txt .
+
+# Install dependencies - this layer will be cached unless requirements.txt changes
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire project code
+# Copy the rest of the application code
 COPY . .
 
-# We tell Docker that we will work on port 5000
-EXPOSE 5000
+# Set the environment variable for Flask
+ENV FLASK_APP=app.py
 
-# Command to connect the server
 CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
