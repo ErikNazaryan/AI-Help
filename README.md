@@ -26,6 +26,23 @@ This is a Flask-based REST API that provides AI-generated advice and stores inte
    git clone [https://github.com/ErikNazaryan/AI-Help.git](https://github.com/ErikNazaryan/AI-Help.git)
    cd AI-Help
 
+feature/dockerization
+   ## Docker Optimization
+
+### Build History
+Below is the output of the `docker history` command showing the layer structure:
+
+
+
+```text
+IMAGE          CREATED          CREATED BY                                      SIZE      COMMENT
+6c628d81a202   25 minutes ago   CMD ["flask" "run" "--host=0.0.0.0" "--port=…   0B        buildkit.dockerfile.v0
+<missing>      25 minutes ago   EXPOSE [5000/tcp]                               0B        buildkit.dockerfile.v0
+<missing>      25 minutes ago   COPY . . # buildkit                             11.8MB    buildkit.dockerfile.v0
+<missing>      27 minutes ago   RUN /bin/sh -c pip install --no-cache-dir -r…   44.2MB    buildkit.dockerfile.v0
+<missing>      27 minutes ago   COPY requirements.txt . # buildkit              12.3kB    buildkit.dockerfile.v0
+<missing>      24 hours ago     WORKDIR /app                                    8.19kB    buildkit.dockerfile.v0
+=======
 
 
    ## Docker Support
@@ -38,3 +55,4 @@ docker pull eriknazaryan/project-genesis:v1
 
 http://localhost:8080/health
 docker run -p 8080:5000 eriknazaryan/project-genesis:v1
+
