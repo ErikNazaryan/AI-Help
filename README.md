@@ -25,3 +25,13 @@ This is a Flask-based REST API that provides AI-generated advice and stores inte
    ```bash
    git clone [https://github.com/ErikNazaryan/AI-Help.git](https://github.com/ErikNazaryan/AI-Help.git)
    cd AI-Help
+
+
+
+   ## Docker Support
+
+This project is containerized using Docker. You can pull the image from Docker Hub and run it locally.
+
+### Pull the Image
+```bash
+docker pull eriknazaryan/project-genesis:v1
