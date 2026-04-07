@@ -1,0 +1,32 @@
+---
+- name: Ansible-Docker Bridge without SSH
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: 1. Confirm connectivity to both containers
+      raw: echo "Ansible is connected to {{ inventory_hostname }}"
+      register: connect_out
+
+    - name: 2. Show connection status
+      debug:
+        msg: "{{ connect_out.stdout_lines }}"
+
+    - name: 3. Check disk usage in backend
+      raw: df -h
+      register: disk_out
+      when: "'app' in inventory_hostname"
+
+    - name: 4. Display disk usage
+      debug:
+        msg: "{{ disk_out.stdout_lines }}"
+      when: "'app' in inventory_hostname"
+
+    - name: 5. Verify Postgres availability
+      raw: pg_isready -U user -d genesis_db
+      register: db_status
+      when: "'db' in inventory_hostname"
+
+    - name: 6. Report DB Status
+      debug:
+        msg: "Postgres check result: {{ db_status.stdout }}"
+      when: "'db' in inventory_hostname"
