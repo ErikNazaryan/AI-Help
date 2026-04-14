@@ -1,85 +1,62 @@
-# AI-Help Chatbot API 🤖
+# AI-Help
+Ai help
 
-This is a Flask-based REST API that provides AI-generated advice and stores interaction history in a SQLite database.
+🤖 SmartSupport AI Chatbot API
+SmartSupport AI is a backend solution designed for startups aiming to automate customer service. This API serves as a bridge to external "intelligence" sources, processing raw data into actionable insights for client-side applications.
 
-## 🚀 Features
+🚀 Setup & Installation (macOS)
+Follow these steps to get the project running on your local machine:
 
-- **Health Check**: Monitor the API status.
-- **AI Advice Engine**: Fetches real-time advice from an external API.
-- **Database Logging**: Automatically saves every AI response with a timestamp.
-- **CRUD Endpoints**: 
-  - `POST`: Manually add notes to the database.
-  - `GET`: View the entire history of saved advice and notes.
+1. Project Navigation & Environment Setup
 
-## 🛠 Tech Stack
+Open your Terminal and run the following commands:
 
-- **Python 3.9+**
-- **Flask** (Web Framework)
-- **Flask-SQLAlchemy** (ORM for SQLite)
-- **Requests** (External API calls)
-- **Dotenv** (Environment variables)
+Bash
+# Navigate to your project directory
+cd ~/Desktop/ai_chatbot_flask
 
-## 📦 Installation & Setup
+# Create a Python virtual environment
+python3 -m venv venv
 
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/ErikNazaryan/AI-Help.git](https://github.com/ErikNazaryan/AI-Help.git)
-   cd AI-Help
+# Activate the virtual environment
+source venv/bin/activate
+2. Install Dependencies
 
-feature/dockerization
-   ## Docker Optimization
+Ensure you have all the necessary libraries installed:
 
-### Build History
-Below is the output of the `docker history` command showing the layer structure:
+Bash
+pip install -r requirements.txt
+3. Configuration (Environment Variables)
 
+Create a file named .env in the root directory and add your configuration:
 
+Code snippet
+APP_ENV=development
+4. Run the Application
 
-```text
-IMAGE          CREATED          CREATED BY                                      SIZE      COMMENT
-6c628d81a202   25 minutes ago   CMD ["flask" "run" "--host=0.0.0.0" "--port=…   0B        buildkit.dockerfile.v0
-<missing>      25 minutes ago   EXPOSE [5000/tcp]                               0B        buildkit.dockerfile.v0
-<missing>      25 minutes ago   COPY . . # buildkit                             11.8MB    buildkit.dockerfile.v0
-<missing>      27 minutes ago   RUN /bin/sh -c pip install --no-cache-dir -r…   44.2MB    buildkit.dockerfile.v0
-<missing>      27 minutes ago   COPY requirements.txt . # buildkit              12.3kB    buildkit.dockerfile.v0
-<missing>      24 hours ago     WORKDIR /app                                    8.19kB    buildkit.dockerfile.v0
+Start the Flask development server:
 
+Bash
+python3 app.py
+🛠 API Endpoints
+Once the server is running, you can test the following endpoints in your browser or via Postman:
 
+Health Check: http://127.0.0.1:5000/health
 
+Purpose: Monitors system uptime, versioning, and environment status.
 
+AI Thought Engine: http://127.0.0.1:5000/api/v1/bot/think
 
-## 🏗 Production Architecture Summary
+Purpose: Fetches real-time "wisdom" or advice from an external API and processes it with custom logic.
 
-This project has been migrated to a professional client-server architecture using Docker Compose. The stack consists of three orchestrated containers:
+📂 Project Structure
+app.py — The core Flask application logic.
 
-1.  **Nginx (Reverse Proxy):** Acts as the entry point, listening on port `80` and forwarding traffic to the API.
-2.  **Flask API (App):** The core logic of Project Genesis, now optimized using a multi-stage Docker build to reduce image size.
-3.  **PostgreSQL (Database):** A persistent relational database engine that replaces the local SQLite file for production-grade data management.
+.env — Secure configuration file (not to be shared publicly).
 
-**Traffic Flow:**
-`User Request (Port 80)` ➔ `Nginx Proxy` ➔ `Flask Application (Port 5000)` ➔ `PostgreSQL Database (Port 5432)`
+venv/ — Isolated Python environment for dependencies.
 
+requirements.txt — List of all required Python packages.
 
-
-## 🚀 Run Instructions
-
-To get the entire production stack up and running locally, follow these steps:
-
-### 1. Clone the Repository
-```bash
-git clone [https://github.com/ErikNazaryan/AI-Help.git](https://github.com/ErikNazaryan/AI-Help.git)
-cd AI-Help
-
-
-
-   ## Docker Support
-
-This project is containerized using Docker. You can pull the image from Docker Hub and run it locally.
-
-### Pull the Image
-```bash
-docker pull eriknazaryan/project-genesis:v1
-
-http://localhost:8080/health
-docker run -p 8080:5000 eriknazaryan/project-genesis:v1
-
-
+🛡 Research Challenge: Error Handling
+This API implements a robust check for external dependencies. It monitors the status_code of outgoing requests. If the external AI service returns anything other than a 200 OK, our backend intercepts the failure and returns a clean 503 Service Unavailable message to the user, preventing system crashes.
