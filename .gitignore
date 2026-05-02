@@ -22,4 +22,6 @@ __pycache__/
 .terraform/
 *.tfstate
 *.tfstate.backup
-.env
+.env.DS_Store
+.vscode/
+venv/
