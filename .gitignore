@@ -1,0 +1,27 @@
+# Ignore the virtual environment
+venv/
+ENV/
+env/
+
+# Ignore environment variables and secrets
+.env
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+*.tfvars
+
+venv/
+__pycache__/
+.terraform/
+*.tfstate
+*.tfstate.backup
+.env.DS_Store
+.vscode/
+venv/

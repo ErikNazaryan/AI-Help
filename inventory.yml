@@ -1,0 +1,6 @@
+all:
+  hosts:
+    ai_chatbot_flask-app-1:
+      ansible_connection: docker
+    ai_chatbot_flask-db-1:
+      ansible_connection: docker
