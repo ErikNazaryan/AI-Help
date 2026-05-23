@@ -1,9 +1,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: genesis-app-ingress
+  name: genesis-ingress
+  namespace: default
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
   - host: genesis.local
@@ -13,6 +14,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: genesis-app-service
+            name: genesis-service
             port:
               number: 80
