@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genesis-app-deployment
+  labels:
+    app: genesis-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: genesis-app
+  template:
+    metadata:
+      labels:
+        app: genesis-app
+    spec:
+      containers:
+      - name: genesis-web
+        image: nginx:latest 
+        ports:
+        - containerPort: 80 
+
