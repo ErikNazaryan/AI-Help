@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: genesis-deployment
-  namespace: genesis
+  namespace: default
   labels:
     app: genesis
 spec:
@@ -38,3 +38,27 @@ spec:
             port: 80
           initialDelaySeconds: 5
           periodSeconds: 10
+        envFrom:
+        - configMapRef:
+            name: genesis-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: genesis-db-creds
+              key: DB_PASSWORD
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: genesis-db-creds
+              key: DB_USER
+        volumeMounts:
+        - name: genesis-storage
+          mountPath: /data
+      volumes:
+      - name: genesis-storage
+        persistentVolumeClaim:
+          claimName: genesis-data-pvc
+
+
+          
