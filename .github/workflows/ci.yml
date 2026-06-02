@@ -1,0 +1,21 @@
+name: Genesis CI
+on:
+  push:
+    branches: [main, hw30] # Ավելացրեցի նաև hw30-ը, որ հենց հիմա push անես՝ վազի
+
+jobs:
+  hello-runner:
+    runs-on: self-hosted
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Verify tools
+      run: |
+        echo "Hello from self-hosted runner!"
+        docker --version
+        kubectl version --client
+        helm version
+
+
+        
