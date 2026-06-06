@@ -62,7 +62,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        submodules: false
+        submodules: false # Ահա՛, հիմա այստեղ էլ է անվտանգ
 
     - name: Deploy to Minikube via Helm
       run: |
