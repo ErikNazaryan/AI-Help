@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        submodules: false
+        submodules: false # Անտեսում է սուբմոդուլները, որ սխալ չտա
 
     - name: Run Test Suite
       run: |
@@ -49,7 +49,7 @@ jobs:
       run: |
         echo "=== STAGE 2: BUILDING IMAGE WITH TAG ${{ steps.meta.outputs.tag }} ==="
         docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/genesis:${{ steps.meta.outputs.tag }} .
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/genesis:${{ ${{ steps.meta.outputs.tag }} }} || docker push ${{ secrets.DOCKERHUB_USERNAME }}/genesis:${GITHUB_SHA::7}
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/genesis:${{ steps.meta.outputs.tag }}
 
   # ----------------------------------------
   # STAGE 3: DEPLOY STATION
