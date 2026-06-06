@@ -1,4 +1,21 @@
-- name: Run Test Suite
+name: Genesis Multi-Stage Pipeline
+on:
+  push:
+    branches: [main, hw31]
+
+jobs:
+  # ----------------------------------------
+  # STAGE 1: TEST STATION
+  # ----------------------------------------
+  test-stage:
+    runs-on: self-hosted
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: false
+
+    - name: Run Test Suite
       run: |
         echo "=== STAGE 1: TESTING STARTED ==="
         python3 -m pip install pytest
@@ -6,3 +23,54 @@
           echo 'def test_trivial(): assert 1 + 1 == 2' > test_app.py
         fi
         python3 -m pytest -q
+
+  # ----------------------------------------
+  # STAGE 2: BUILD & PUSH STATION
+  # ----------------------------------------
+  build-stage:
+    runs-on: self-hosted
+    needs: test-stage
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: false
+
+    - name: Login to DockerHub
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+    - name: Generate Short SHA Tag
+      id: meta
+      run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+    - name: Build & Push Docker Image
+      run: |
+        echo "=== STAGE 2: BUILDING IMAGE WITH TAG ${{ steps.meta.outputs.tag }} ==="
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/genesis:${{ steps.meta.outputs.tag }} .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/genesis:${{ steps.meta.outputs.tag }}
+
+  # ----------------------------------------
+  # STAGE 3: DEPLOY STATION
+  # ----------------------------------------
+  deploy-stage:
+    runs-on: self-hosted
+    needs: build-stage
+    environment: staging
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: false
+
+    - name: Deploy to Minikube via Helm
+      run: |
+        echo "=== STAGE 3: DEPLOYING TO MINIKUBE ==="
+        helm upgrade --install genesis ./genesis-chart \
+          --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/genesis \
+          --set image.tag=${{ needs.build-stage.outputs.tag }}
+
+    - name: Verify Deployment Rollout Status
+      run: |
+        kubectl rollout status deployment/genesis-deployment
