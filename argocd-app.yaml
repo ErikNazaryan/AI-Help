@@ -7,12 +7,14 @@ spec:
   project: default
   source:
     repoURL: https://github.com/ErikNazaryan/AI-Help.git
-    targetRevision: gitops-release # 🎯 Քո մաքուր branch-ը
-    path: genesis-chart # 📂 Քո chart-ի թղթապանակը
+    targetRevision: gitops-release
+    path: genesis-chart
   destination:
     server: https://kubernetes.default.svc
-    namespace: default # 🐳 Քո օգտագործած namespace-ը
+    namespace: default
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
