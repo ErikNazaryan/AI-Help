@@ -6,17 +6,13 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/ErikNazaryan/AI-Help.git'
-    targetRevision: main
-    path: genesis-chart
+    repoURL: https://github.com/ErikNazaryan/AI-Help.git
+    targetRevision: gitops-release # 🎯 Քո մաքուր branch-ը
+    path: genesis-chart # 📂 Քո chart-ի թղթապանակը
   destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: default
+    server: https://kubernetes.default.svc
+    namespace: default # 🐳 Քո օգտագործած namespace-ը
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-
-      
