@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: genesis-gitops-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    # 🚨 ՔՈ ՌԵՊՈՅԻ ՀՂՈՒՄԸ. Սա քո GitHub-ի հասցեն է, որտեղ genesis-chart-ն է
+    repoURL: 'https://github.com/ErikNazaryan/AI-Help'
+    targetRevision: HW31
+    path: genesis-chart # Թղթապանակի անունը, որտեղ քո Helm Chart-ն է
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default # Թիրախային namespace-ը քո հավելվածի համար
+  syncPolicy:
+    automated:
+      prune: true       # Ավտոմատ ջնջում է կլաստերից այն ամենը, ինչը ջնջվել է Git-ից
+      selfHeal: true    # ԱՎՏՈՄԱՏ ԻՆՔՆԱԲՈՒԺՈՒՄ. վերականգնում է ձեռքով արված բոլոր փոփոխությունները
+    syncOptions:
+      - CreateNamespace=true
+
