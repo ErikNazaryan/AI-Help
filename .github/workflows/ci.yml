@@ -1,16 +1,18 @@
 name: Project Genesis Modular Pipeline
 
 on:
-  push:
+  pull_request:
     branches:
       - main
-      - gitops-release
+  push:
+    branches:
+      - hw33
 
 jobs:
   delivery:
-  
-    uses: ErikNazaryan/ci-templates/.github/workflows/shared-pipeline.yml@main
+    uses: ErikNazaryan/ci-templates/.github/workflows/shared-pipeline.yml@v1
     with:
       image: docker.io/eriknazaryan/genesis:${{ github.sha }}
     secrets:
       REGISTRY_TOKEN: ${{ secrets.DOCKER_PASSWORD }}
+      GH_BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub-ի ներքին ավտոմատ տոկենն է
