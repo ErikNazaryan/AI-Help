@@ -1,0 +1,30 @@
+stages:
+  - build
+  - test
+  - deploy
+
+# 🔗 1. Ներբեռնում ենք քո սարքած կաղապարները v1.0.0 թեգով
+include:
+  - remote: 'https://raw.githubusercontent.com/ErikNazaryan/ci-templates/v1.0.0/templates/build.yml'
+  - remote: 'https://raw.githubusercontent.com/ErikNazaryan/ci-templates/v1.0.0/templates/security.yml'
+  - remote: 'https://raw.githubusercontent.com/ErikNazaryan/ci-templates/v1.0.0/templates/deploy.yml'
+
+# 🐳 2. Սահմանում ենք քո DockerHub իմիջի անունը
+variables:
+  IMAGE: "eriknazaryan/genesis"
+
+# 🛠️ 3. Ժառանգում և ակտիվացնում ենք ջոբերը
+build_job:
+  extends: .docker-build
+  runs-on: self-hosted
+
+trivy_scan_job:
+  extends: .trivy-scan
+  runs-on: self-hosted
+
+deploy_job:
+  extends: .helm-deploy
+  runs-on: self-hosted
+  minus:
+    - build_job
+    - trivy_scan_job

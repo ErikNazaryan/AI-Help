@@ -4,14 +4,13 @@ on:
   push:
     branches:
       - main
-      - gitops-release # 🎯 Քո ակտիվ ճյուղերը
+      - gitops-release
 
 jobs:
   call-shared-ci:
-    # 🎯 Կանչում ենք քո ստեղծած երկրորդ ռեպոյի ֆայլը
     uses: ErikNazaryan/ci-templates/.github/workflows/shared-pipeline.yml@main
     with:
-      image_name: "eriknazaryan/genesis" # 🐳 Քո DockerHub ռեպոյի անունը
+      image_name: "eriknazaryan/genesis"
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
