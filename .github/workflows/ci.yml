@@ -8,6 +8,7 @@ on:
 
 jobs:
   delivery:
+    # 🔗 Ճշգրիտ GitHub Actions սինտաքսը՝ Reusable Workflow կանչելու համար
     uses: ErikNazaryan/ci-templates/.github/workflows/shared-pipeline.yml@v1
     with:
       image: docker.io/eriknazaryan/genesis:${{ github.sha }}
