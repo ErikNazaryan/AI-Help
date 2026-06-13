@@ -11,9 +11,9 @@ include:
   - project: 'ErikNazaryan/ci-templates'
     ref: v1.0.0
     file: '/templates/security.yml'
-  - project: 'ErikNazaryan/ci-templates'
-    ref: v1.0.0
-    file: '/templates/deploy.yml'
+
+variables:
+  IMAGE: "docker.io/eriknazaryan/genesis"
 
 # 🛠️ 1. Build Փուլ
 build-image:
@@ -21,22 +21,31 @@ build-image:
   extends: .docker-build
   tags:
     - self-hosted
-  variables:
-    IMAGE: "docker.io/eriknazaryan/genesis"
 
-# 🛡️ 2. Scan Փուլ (Իրական Անվտանգության Պատնեշ)
+# 🛡️ 2. Scan Փուլ (Trivy Security Gate)
 container-scan:
   extends: .trivy-scan
   stage: scan
   tags:
     - self-hosted
-  variables:
-    IMAGE: "docker.io/eriknazaryan/genesis"
-  allow_failure: false               # 🛑 Իրական պատնեշ. բլոկում է փայփլայնը սխալների դեպքում
+  allow_failure: false
 
-# 🚀 3. Deploy Փուլ
-deploy-app:
+# 🚀 3. Deploy Փուլ (GitOps Loop: Bump Chart & Commit Back)
+bump-chart:
   stage: deploy
-  extends: .helm-deploy
   tags:
     - self-hosted
+  script:
+    - echo "Updating Helm Chart with the new image tag..."
+    
+    # 📝 1. sed-ով փոխում ենք tag-ի արժեքը values.yaml ֆայլում
+    - sed -i '' "s/tag:.*/tag:\ \"$CI_COMMIT_SHORT_SHA\"/g" genesis-chart/values.yaml
+    
+    # ⚙️ 2. Կոնֆիգուրացնում ենք ժամանակավոր Git user, որ ռանները կարողանա commit անել
+    - git config user.name "Genesis CI Bot"
+    - git config user.email "ci-bot@genesis.com"
+    
+    # 📦 3. Commit ենք անում փոփոխված values.yaml-ը և push անում հետ ռեպո
+    - git add genesis-chart/values.yaml
+    - git commit -m "ci:\ genesis:$CI_COMMIT_SHORT_SHA [skip ci]"
+    - git push origin HEAD:$CI_COMMIT_REF_NAME
