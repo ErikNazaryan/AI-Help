@@ -1,0 +1,85 @@
+stages:
+  - build
+  - scan
+  - deploy
+
+# 🔗 Ժառանգում ենք կաղապարները v1.0.0 թեգով
+include:
+  - project: 'ErikNazaryan/ci-templates'
+    ref: v1.0.0
+    file: '/templates/build.yml'
+  - project: 'ErikNazaryan/ci-templates'
+    ref: v1.0.0
+    file: '/templates/security.yml'
+
+variables:
+  IMAGE: "docker.io/eriknazaryan/genesis"
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # SonarQube ქեշավորման համար
+  GIT_DEPTH: "0"  # Sonar-ին պետք է ամբողջ պատմությունը ճիշտ վերլուծության համար
+
+# 🛠️ 1. Build Փուլ
+build-image:
+  stage: build
+  extends: .docker-build
+  tags:
+    - self-hosted
+
+# 🛡️ 2. Scan Փուլ (Ամբողջական Shift-Left Security Gate)
+
+# Ա. Container Scan (Trivy Image)
+container-scan:
+  extends: .trivy-scan
+  stage: scan
+  tags:
+    - self-hosted
+  allow_failure: false
+
+# Բ. SAST (SonarQube Check)
+sonarqube-check:
+  stage: scan
+  image: 
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  tags:
+    - self-hosted
+  script:
+    - sonar-scanner -Dsonar.projectKey=genesis-app -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
+  allow_failure: false  # 🛑 Չանցնելու դեպքում բլոկում է Merge-ը
+
+# Գ. Secrets Detection (Gitleaks)
+secret-detection:
+  stage: scan
+  image:
+    name: zricethezav/gitleaks:latest
+    entrypoint: [""]
+  tags:
+    - self-hosted
+  script:
+    - gitleaks detect --verbose --source .
+  allow_failure: false  # 🛑 Թույլ չի տալիս, որ գաղտնաբառ սպրդի պատմության մեջ
+
+# Դ. Dependency Scan (Trivy FS / SCA)
+dependency-scan:
+  stage: scan
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  tags:
+    - self-hosted
+  script:
+    - trivy fs --severity HIGH,CRITICAL --exit-code 1 .
+  allow_failure: true  # ⚠️ Սկսում ենք true-ով, հետո կսարքենք false (ըստ պահանջի)
+
+# 🚀 3. Deploy Փուլ (GitOps Loop)
+bump-chart:
+  stage: deploy
+  tags:
+    - self-hosted
+  script:
+    - echo "Updating Helm Chart image tag..."
+    - sed -i '' "s/tag:.*/tag:\ \"$CI_COMMIT_SHORT_SHA\"/g" genesis-chart/values.yaml
+    - git config user.name "Genesis CI Bot"
+    - git config user.email "ci-bot@genesis.com"
+    - git add genesis-chart/values.yaml
+    - git commit -m "ci:\ genesis:$CI_COMMIT_SHORT_SHA [skip ci]"
+    - git push origin HEAD:$CI_COMMIT_REF_NAME
