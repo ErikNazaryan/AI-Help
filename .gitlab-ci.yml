@@ -1,30 +1,36 @@
 stages:
   - build
-  - test
+  - scan
   - deploy
 
-# 🔗 1. Ներբեռնում ենք քո սարքած կաղապարները v1.0.0 թեգով
+# 🔗 Ժառանգում ենք կաղապարները՝ ֆիքսված v1.0.0 թեգով (PIN the version)
 include:
-  - remote: 'https://raw.githubusercontent.com/ErikNazaryan/ci-templates/v1.0.0/templates/build.yml'
-  - remote: 'https://raw.githubusercontent.com/ErikNazaryan/ci-templates/v1.0.0/templates/security.yml'
-  - remote: 'https://raw.githubusercontent.com/ErikNazaryan/ci-templates/v1.0.0/templates/deploy.yml'
+  - project: 'ErikNazaryan/ci-templates'
+    ref: v1.0.0
+    file: '/templates/build.yml'
+  - project: 'ErikNazaryan/ci-templates'
+    ref: v1.0.0
+    file: '/templates/security.yml'
+  - project: 'ErikNazaryan/ci-templates'
+    ref: v1.0.0
+    file: '/templates/deploy.yml'
 
-# 🐳 2. Սահմանում ենք քո DockerHub իմիջի անունը
-variables:
-  IMAGE: "eriknazaryan/genesis"
-
-# 🛠️ 3. Ժառանգում և ակտիվացնում ենք ջոբերը
-build_job:
+# 🛠️ Ակտիվացնում ենք ջոբերը առանց սկրիպտներ կրկնելու (DRY Refactor)
+build-image:
   extends: .docker-build
-  runs-on: self-hosted
+  tags:
+    - self-hosted
+  variables:
+    IMAGE: "docker.io/eriknazaryan/genesis"
 
-trivy_scan_job:
+trivy-scan-image:
   extends: .trivy-scan
-  runs-on: self-hosted
+  tags:
+    - self-hosted
+  variables:
+    IMAGE: "docker.io/eriknazaryan/genesis"
 
-deploy_job:
+deploy-app:
   extends: .helm-deploy
-  runs-on: self-hosted
-  minus:
-    - build_job
-    - trivy_scan_job
+  tags:
+    - self-hosted
