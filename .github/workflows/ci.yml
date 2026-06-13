@@ -8,8 +8,8 @@ on:
 
 jobs:
   delivery:
-    # 🔗 Ճշգրիտ GitHub Actions սինտաքսը՝ Reusable Workflow կանչելու համար
-    uses: ErikNazaryan/ci-templates/.github/workflows/shared-pipeline.yml@v1
+    # 🎯 @v1-ի փոխարեն դնում ենք @main, որ GitHub-ը միանգամից կարդա վերջին թարմ կոդը
+    uses: ErikNazaryan/ci-templates/.github/workflows/shared-pipeline.yml@main
     with:
       image: docker.io/eriknazaryan/genesis:${{ github.sha }}
     secrets:
