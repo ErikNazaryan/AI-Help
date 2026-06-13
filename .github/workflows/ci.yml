@@ -7,10 +7,9 @@ on:
       - gitops-release
 
 jobs:
-  call-shared-ci:
-    uses: ErikNazaryan/ci-templates/.github/workflows/shared-pipeline.yml@main
+  delivery:
+    uses: ErikNazaryan/ci-templates/.github/workflows/shared-pipeline.yml@v1
     with:
-      image_name: "eriknazaryan/genesis"
+      image: docker.io/eriknazaryan/genesis:${{ github.sha }}
     secrets:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      REGISTRY_TOKEN: ${{ secrets.DOCKER_PASSWORD }}
