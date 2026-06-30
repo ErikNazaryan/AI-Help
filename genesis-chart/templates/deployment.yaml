@@ -24,7 +24,12 @@ spec:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         ports:
-        - containerPort: {{ .Values.service.port }}
+        - name: http
+          containerPort: 5000 # 🔌 Flask հավելվածի պորտը
+          protocol: TCP
+        - name: metrics
+          containerPort: 8000 # 📊 Prometheus մետրիկաների պորտը (HW35-ի պահանջը)
+          protocol: TCP
         resources:
           requests:
             cpu: "50m"
@@ -35,8 +40,8 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: {{ .Values.service.port }}
-          initialDelaySeconds: 5
+            port: 5000 # 👈 Նայում է հիմնական Flask պորտին
+          initialDelaySeconds: 30 # ⏱️ Երկարացրինք 30 վրկ, որ Python-ը հասցնի կպնել բազային
           periodSeconds: 10
         envFrom:
         - configMapRef:

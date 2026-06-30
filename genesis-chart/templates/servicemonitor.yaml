@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-servicemonitor
+  namespace: default
+  labels:
+    release: kube-prometheus-stack # 🎯 Ուղղված է. սրանով Prometheus-ը միանգամից կգտնի մեր հավելվածը
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }} # 🔗 Կպչում է քո Service-ի selector-ին
+  endpoints:
+  - port: metrics # 🔌 Մեր սարքած 8000 պորտը
+    path: /metrics
+    interval: 15s

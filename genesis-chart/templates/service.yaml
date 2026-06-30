@@ -6,8 +6,13 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-  - port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.port }}
+  - port: 5000           # 🔌 Դրսից հասանելի պորտը հավելվածի համար
+    targetPort: 5000     # 🎯 Կպչում է Pod-ի 5000 պորտին (Flask)
     protocol: TCP
+    name: http
+  - port: 8000           # 📊 Դրսից հասանելի պորտը մետրիկաների համար
+    targetPort: 8000     # 🎯 Կպչում է Pod-ի 8000 պորտին (Prometheus Client)
+    protocol: TCP
+    name: metrics        # 👈 Այս անունը պետք է, որ ServiceMonitor-ը գտնի
   selector:
     app: {{ .Chart.Name }}

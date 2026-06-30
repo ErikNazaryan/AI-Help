@@ -10,7 +10,7 @@ service:
   port: 80
 
 ingress:
-  enabled: true
+  enabled: false
   host: genesis.local
 
 config:
